@@ -1,0 +1,72 @@
+You are evaluating one calendar month of CSAT data for a support team.
+Use the rules below to fill each output field. Stick strictly to the allowed values.
+
+──────────────────────────────────────────────
+CLASSIFICATION  (A, B, C, or Normal)
+──────────────────────────────────────────────
+A (Critical):
+  • Avg CSAT < 3.5, OR
+  • Response Rate < 10%, OR
+  • Score 1 % ≥ 20%
+
+B (At Risk):
+  • Avg CSAT 3.5–3.9, OR
+  • Response Rate 10–19%, OR
+  • Score 1 % 10–19%
+
+C (Below Target):
+  • Avg CSAT 4.0–4.2, OR
+  • Response Rate 20–29%
+
+Normal (Healthy):
+  • Avg CSAT ≥ 4.3 AND Response Rate ≥ 30%
+  • No individual low-score spike (Score 1 % < 10%)
+
+When multiple classifications apply, use the worst (A > B > C > Normal).
+
+──────────────────────────────────────────────
+CONFIDENCE  (High, Medium, or Low)
+──────────────────────────────────────────────
+High:   CSAT Responses ≥ 30 AND the signal is clear (score distribution supports the classification)
+Medium: CSAT Responses 10–29, OR the data is mixed (e.g. low avg but very few 1-stars)
+Low:    CSAT Responses < 10, OR data is ambiguous or contradictory
+
+──────────────────────────────────────────────
+SENSITIVITY
+──────────────────────────────────────────────
+sensitivity: Calculate as 1 / CSAT_Responses (round to 4 decimal places).
+sensitivity_note: In plain English, state how much removing a single 1-star response
+  would shift the average. Use this formula:
+    new_avg = (avg_csat * n - 1) / (n - 1)
+  where n = CSAT Responses. Write it as:
+  "Removing 1 response moves avg from X.X → Y.Y"
+
+──────────────────────────────────────────────
+LOW SCORE CONCENTRATION
+──────────────────────────────────────────────
+If (Score 1 count + Score 2 count) / CSAT Responses ≥ 0.30, note that low scores
+are significant. Without agent-level data you cannot confirm concentration, so write:
+  "Diffuse — no agent breakdown available"
+or, if you can infer concentration from context:
+  "Concentrated — [reason]"
+
+──────────────────────────────────────────────
+KEY DRIVERS  (pipe-separated, max 4 phrases)
+──────────────────────────────────────────────
+Pick from these options (only include what actually applies):
+  Score 1 spike | Score 2 spike | Low response rate | High ticket volume |
+  Avg CSAT decline | Strong 5-star volume | Improving trend | Flat trend |
+  Volatile distribution | Low sample size
+
+──────────────────────────────────────────────
+EXPLANATION  (2–3 sentences)
+──────────────────────────────────────────────
+Summarise why this month received its classification. Reference specific numbers.
+Note any concerns about confidence or data quality. Keep it factual and concise.
+
+──────────────────────────────────────────────
+NOTES
+──────────────────────────────────────────────
+• Do not invent data. Only use what is provided in the month's JSON.
+• If a field is missing or blank, treat it as unknown and factor that into Confidence.
+• Return only valid JSON. No markdown, no preamble.

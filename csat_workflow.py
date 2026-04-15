@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", message=".*NotOpenSSLWarning.*")
+warnings.filterwarnings("ignore", message=".*urllib3.*")
+
 """
 CSAT Evaluation Workflow
 ========================
@@ -122,10 +128,10 @@ def write_last_run_timestamp(sheet):
     config_ws = sheet.worksheet(CONFIG_TAB)
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     now_short = datetime.now().strftime("%Y-%m-%d %H:%M")
-    config_ws.update("A3", [["LAST_RUN"]])
-    config_ws.update("B3", [[now]])
-    config_ws.update("A4", [["SUMMARY_GENERATED"]])
-    config_ws.update("B4", [[f"CSAT Evaluation Summary — generated {now_short}"]])
+    config_ws.update(range_name="A3", values=[["LAST_RUN"]])
+    config_ws.update(range_name="B3", values=[[now]])
+    config_ws.update(range_name="A4", values=[["SUMMARY_GENERATED"]])
+    config_ws.update(range_name="B4", values=[[f"CSAT Evaluation Summary — generated {now_short}"]])
     print(f"  Zapier trigger updated: LAST_RUN = {now}")
     print(f"  Summary note written to Config tab: generated {now_short}")
 

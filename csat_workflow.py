@@ -3,7 +3,7 @@
 CSAT Evaluation Workflow
 ========================
 Reads raw support ticket data from a Google Sheet ("CSAT Data" tab),
-aggregates by month using the "Solved Date" date, evaluates each month
+aggregates by month using the "Closed At" date, evaluates each month
 with Claude, and writes results to the "Summary" tab.
 
 The "CSAT Data" tab is never modified — it is read-only input.
@@ -29,15 +29,13 @@ GOOGLE SHEET STRUCTURE
   Tab "Config":
     A2 = label:  CSAT_CLASSIFICATION_PROMPT
     B2 = value:  (your classification prompt)
-    A3 = label:  LAST_RUN  (auto-written by script for Zapier trigger)
-    B3 = value:  (timestamp — Zapier watches this cell)
 
   Tab "CSAT Data":
     Row 1 = headers (exact column names expected):
-      Ticket ID, Created Date, Solved Date, Ticket Status,
-      Customer Org Name, Customer User Name, Org Region, Org ARR Bucket,
-      Issue Priority, Issue Severity, Assigned Agent, Assigned Agent Region,
-      Product Area, Resolution Time (days), CSAT Score,
+      Ticket ID, Ticket Status, Customer Org Name, Customer User Name,
+      Org Region, Org ARR Bucket, Issue Priority, Issue Severity,
+      Assigned Agent, Assigned Agent Region, Product Area,
+      Opened At, Closed At, Resolution Time (days), CSAT Score,
       CSAT Comment, CSAT Response Date
     Row 2+ = one row per support ticket
 
@@ -194,8 +192,8 @@ def format_breakdown(items, total_low: int) -> str:
 
 
 def debug_date_sample(all_rows: list):
-    """Print a sample of Solved Date values to help diagnose parse failures."""
-    print("  Sample 'Solved Date' values from your data:")
+    """Print a sample of Closed At values to help diagnose parse failures."""
+    print("  Sample 'Closed At' values from your data:")
     seen = set()
     for row in all_rows[:50]:
         val = str(row.get(COL_CLOSED_AT, "")).strip()
@@ -209,19 +207,28 @@ def debug_date_sample(all_rows: list):
 def aggregate_tickets(all_rows: list) -> dict:
     """
     Group ticket rows by month (Solved Date) and compute aggregates.
+    Excludes the current calendar month — only fully closed months are evaluated.
     Returns dict keyed by period ('YYYY-MM') -> aggregate dict.
     """
+    current_period = date.today().strftime("%Y-%m")
+
     by_period = defaultdict(list)
     skipped = 0
+    excluded_current = 0
     for row in all_rows:
         closed_val = row.get(COL_CLOSED_AT, "")
         dt = parse_date(closed_val)
         period = date_to_period(dt)
         if period:
-            by_period[period].append(row)
+            if period >= current_period:
+                excluded_current += 1  # skip current (incomplete) month
+            else:
+                by_period[period].append(row)
         else:
             skipped += 1
 
+    if excluded_current:
+        print(f"  Excluded {excluded_current} ticket(s) from {current_period} (month not yet complete).")
     if skipped:
         print(f"  Warning: {skipped} ticket(s) skipped (unparseable Solved Date).")
 
@@ -286,10 +293,11 @@ def aggregate_tickets(all_rows: list) -> dict:
 
 def read_evaluated_periods(sheet) -> dict:
     """
-    Read the Summary tab and return a dict of period -> row_dict
+    Read the Summary tab and return a dict of period → row_dict
     for all periods that already have a Classification value.
     Layout: row 1 = title, row 2 = blank, row 3 = headers, row 4+ = data.
     """
+    current_period = date.today().strftime("%Y-%m")
     try:
         summary_ws = sheet.worksheet(SUMMARY_TAB)
         all_values = summary_ws.get_all_values()
@@ -303,7 +311,8 @@ def read_evaluated_periods(sheet) -> dict:
             row_dict = dict(zip(headers, row))
             period = row_dict.get("Period", "").strip()
             classification = row_dict.get("Classification", "").strip()
-            if period and classification:
+            # Exclude current and future months — only fully closed months belong here
+            if period and classification and period < current_period:
                 result[period] = row_dict
         return result
     except gspread.exceptions.WorksheetNotFound:
@@ -324,12 +333,12 @@ No markdown fences, no commentary, no explanation outside the JSON.
 
 Required keys in your JSON response:
   sensitivity             (number)  — e.g. 0.048
-  sensitivity_note        (string)  — plain English, e.g. "Removing 1 response moves avg from 4.2 to 4.1"
+  sensitivity_note        (string)  — plain English, e.g. "Removing 1 response moves avg from 4.2 → 4.1"
   low_score_concentration (string)  — e.g. "Diffuse" or "Concentrated — Agent X (3 of 5 low scores)"
   classification          (string)  — exactly one of: A, B, C, Normal
   confidence              (string)  — exactly one of: High, Medium, Low
   key_drivers             (string)  — pipe-separated short phrases, e.g. "Score 1 spike | Low response rate"
-  explanation             (string)  — 2-3 complete sentences
+  explanation             (string)  — 2–3 complete sentences
 """
 
 
@@ -530,7 +539,7 @@ def main():
 
     aggregates = aggregate_tickets(all_rows)
     if not aggregates:
-        print("  No valid monthly periods found. Check the 'Solved Date' column format.")
+        print("  No valid monthly periods found. Check the 'Closed At' date format.")
         debug_date_sample(all_rows)
         sys.exit(1)
 

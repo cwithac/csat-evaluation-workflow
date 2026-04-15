@@ -1,4 +1,4 @@
-# csat-evaluation-workflow
+# CSAT Evaluation Workflow
 
 An AI-driven workflow that evaluates monthly CSAT data using Claude, writes scores and labels back to Google Sheets, and surfaces the most critical period across a trailing 12-month window.
 
@@ -73,16 +73,17 @@ python csat_workflow.py
 | File | Purpose |
 |----|-----|
 | `csat_workflow.py` | Main workflow script |
-| `CSAT_CLASSIFICATION_PROMPT_default.txt` | Starter classification rules — paste into your Config tab |
 | `requirements.txt` | Python dependencies |
 | `.gitignore` | Keeps credentials out of version control |
-| `mock_data_07012025-03312026.csv` | Synthetic test data for development and testing (see below) |
+| `resources/CSAT_CLASSIFICATION_PROMPT_default.txt` | Starter classification rules — paste into your Config tab |
+| `resources/mock_data_07012025-03312026.csv` | Synthetic test data for development and testing (see below) |
+| `resources/Claude AI Prompt.md` | The AI prompt used to build this workflow — useful for adapting or extending it |
 
 ---
 
 ## Test data
 
-`mock_data_07012025-03312026.csv` contains **synthetic support ticket data** covering July 1, 2025 – March 31, 2026. It is entirely computer-generated and does not represent any real customers, agents, organizations, or ticket activity.
+`resources/mock_data_07012025-03312026.csv` contains **synthetic support ticket data** covering July 1, 2025 – March 31, 2026. It is entirely computer-generated and does not represent any real customers, agents, organizations, or ticket activity.
 
 It is included so you can run the full workflow end-to-end without needing real data. Import it into the **CSAT Data** tab of your Google Sheet to get started.
 

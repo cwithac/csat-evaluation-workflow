@@ -117,12 +117,17 @@ def write_last_run_timestamp(sheet):
     """
     Write the current timestamp to Config!A3/B3 so Zapier can watch
     cell B3 for changes and trigger a Zap on every workflow run.
+    Also writes a summary generated note to Config!A4/B4.
     """
     config_ws = sheet.worksheet(CONFIG_TAB)
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now_short = datetime.now().strftime("%Y-%m-%d %H:%M")
     config_ws.update("A3", [["LAST_RUN"]])
     config_ws.update("B3", [[now]])
+    config_ws.update("A4", [["SUMMARY_GENERATED"]])
+    config_ws.update("B4", [[f"CSAT Evaluation Summary — generated {now_short}"]])
     print(f"  Zapier trigger updated: LAST_RUN = {now}")
+    print(f"  Summary note written to Config tab: generated {now_short}")
 
 
 # ── Date parsing ──────────────────────────────────────────────────────────────
@@ -295,17 +300,17 @@ def read_evaluated_periods(sheet) -> dict:
     """
     Read the Summary tab and return a dict of period → row_dict
     for all periods that already have a Classification value.
-    Layout: row 1 = title, row 2 = blank, row 3 = headers, row 4+ = data.
+    Layout: row 1 = headers, row 2+ = data.
     """
     current_period = date.today().strftime("%Y-%m")
     try:
         summary_ws = sheet.worksheet(SUMMARY_TAB)
         all_values = summary_ws.get_all_values()
-        if len(all_values) < 4:
+        if len(all_values) < 2:
             return {}
-        headers = all_values[2]
+        headers = all_values[0]
         result = {}
-        for row in all_values[3:]:
+        for row in all_values[1:]:
             if len(row) < len(headers):
                 row = row + [""] * (len(headers) - len(row))
             row_dict = dict(zip(headers, row))
@@ -477,10 +482,7 @@ def generate_summary(sheet, all_evaluated: list):
             title=SUMMARY_TAB, rows=500, cols=len(SUMMARY_HEADERS) + 2
         )
 
-    now = datetime.now().strftime("%Y-%m-%d %H:%M")
     rows = [
-        [f"CSAT Evaluation Summary — generated {now}"],
-        [],
         SUMMARY_HEADERS,
     ]
 

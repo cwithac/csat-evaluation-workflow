@@ -40,6 +40,36 @@ For each month, the workflow evaluates and writes back:
 
 A **Summary tab** is generated automatically on every run.
 
+```
+==================================================
+  CSAT Evaluation Workflow
+==================================================
+
+[1/5] Connecting to Google Sheets...
+  Connected to: CSAT Evaluation
+
+[2/5] Reading 'CSAT_CLASSIFICATION_PROMPT' from 'Config' tab...
+  Prompt loaded (1442 chars).
+
+[3/5] Reading and aggregating tickets from 'CSAT Data' tab...
+  2070 tickets found.
+  Excluded 20 ticket(s) from 2026-04 (month not yet complete).
+  Aggregated into 9 monthly periods: 2025-07, 2025-08, 2025-09, 2025-10, 2025-11, 2025-12, 2026-01, 2026-02, 2026-03
+  Already evaluated: 9 | New periods: 0
+
+[4/5] No new periods to evaluate — all months already in Summary.
+
+[5/5] Computing Trailing 12 flags and generating Summary...
+  Summary tab written (9 periods).
+  Zapier trigger updated: LAST_RUN = 2026-04-15 13:24:00
+  Summary note written to Config tab: generated 2026-04-15 13:24
+
+==================================================
+  Done. 9 period(s) in Summary.
+  Most critical (trailing 12): 2025-12 — A / Low
+==================================================
+```
+
 ---
 
 ## Key design decisions

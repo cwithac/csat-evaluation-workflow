@@ -20,7 +20,7 @@ SETUP
 5. Install dependencies:
        pip install gspread anthropic google-auth
 6. Set your Anthropic API key:
-       export ANTHROPIC_API_KEY="sk-ant-..."
+       export ANTHROPIC_API_KEY="sk-ant-...
 7. Run:
        python csat_workflow.py
 
@@ -48,7 +48,7 @@ from google.oauth2.service_account import Credentials
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 
-SHEET_ID         = "YOUR_GOOGLE_SHEET_ID_HERE"   # ← replace this
+SHEET_ID         = "1yYFc7RZLCfKRYp_shbteORtiEUDmhmkv7zU6ilVa4RU"
 CREDENTIALS_FILE = "credentials.json"             # service account key file
 DATA_TAB         = "CSAT Data"
 CONFIG_TAB       = "Config"

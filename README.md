@@ -27,7 +27,7 @@ If a threshold changes, a new factor matters, or you want to reason differently 
 For each month, the workflow evaluates and writes back:
 
 | Field | Description |
-|---|---|
+|----|-----|
 | Classification | A (Critical), B (At Risk), C (Below Target), or Normal |
 | Confidence | High / Medium / Low based on sample size and signal clarity |
 | Sensitivity | How much one response shifts the average |
@@ -71,8 +71,39 @@ python csat_workflow.py
 ## Files
 
 | File | Purpose |
-|---|---|
+|----|-----|
 | `csat_workflow.py` | Main workflow script |
 | `CSAT_CLASSIFICATION_PROMPT_default.txt` | Starter classification rules — paste into your Config tab |
 | `requirements.txt` | Python dependencies |
 | `.gitignore` | Keeps credentials out of version control |
+| `mock_data_07012025-03312026.csv` | Synthetic test data for development and testing (see below) |
+
+---
+
+## Test data
+
+`mock_data_07012025-03312026.csv` contains **synthetic support ticket data** covering July 1, 2025 – March 31, 2026. It is entirely computer-generated and does not represent any real customers, agents, organizations, or ticket activity.
+
+It is included so you can run the full workflow end-to-end without needing real data. Import it into the **CSAT Data** tab of your Google Sheet to get started.
+
+Column structure matches the expected input format:
+
+| Column | Description |
+|----|-----|
+| Ticket ID | Unique ticket identifier |
+| Created Date | Date the ticket was opened |
+| Solved Date | Date the ticket was closed (used to group by month) |
+| Ticket Status | e.g. Solved, Closed |
+| Customer Org Name | Organization name |
+| Customer User Name | End user name |
+| Org Region | Customer region |
+| Org ARR Bucket | Annual recurring revenue tier |
+| Issue Priority | Ticket priority level |
+| Issue Severity | Ticket severity level |
+| Assigned Agent | Support agent name |
+| Assigned Agent Region | Agent's region |
+| Product Area | Product area related to the ticket |
+| Resolution Time (days) | Time from open to close |
+| CSAT Score | Customer satisfaction score (1–5, blank if not submitted) |
+| CSAT Comment | Optional free-text comment from the customer |
+| CSAT Response Date | Date the CSAT response was submitted |
